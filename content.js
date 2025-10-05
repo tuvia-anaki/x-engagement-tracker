@@ -2,39 +2,34 @@
 
 let commentCount = 0;
 let postCount = 0;
-let repostCount = 0;
 let lastResetDate = null;
 
 const GOALS = {
   comments: 100,
-  posts: 5,
-  reposts: 3
+  posts: 5
 };
 
 // Initialize
 async function init() {
-  const data = await chrome.storage.local.get(['commentCount', 'postCount', 'repostCount', 'lastResetDate']);
+  const data = await chrome.storage.local.get(['commentCount', 'postCount', 'lastResetDate']);
   const today = new Date().toDateString();
   
   if (data.lastResetDate !== today) {
     commentCount = 0;
     postCount = 0;
-    repostCount = 0;
     lastResetDate = today;
     await chrome.storage.local.set({ 
       commentCount: 0, 
       postCount: 0,
-      repostCount: 0,
       lastResetDate: today 
     });
   } else {
     commentCount = data.commentCount || 0;
     postCount = data.postCount || 0;
-    repostCount = data.repostCount || 0;
     lastResetDate = data.lastResetDate;
   }
   
-  console.log('[X Tracker] Loaded:', { commentCount, postCount, repostCount });
+  console.log('[X Tracker] Loaded:', { commentCount, postCount });
 }
 
 // Show popup
@@ -55,14 +50,10 @@ async function showProgressPopup(type = 'comment') {
     mainTitle = '💬 Comments';
     mainCount = commentCount;
     mainGoal = GOALS.comments;
-  } else if (type === 'post') {
+  } else {
     mainTitle = '✍️ Posts';
     mainCount = postCount;
     mainGoal = GOALS.posts;
-  } else {
-    mainTitle = '🔁 Reposts';
-    mainCount = repostCount;
-    mainGoal = GOALS.reposts;
   }
   
   const mainRemaining = Math.max(mainGoal - mainCount, 0);
@@ -71,7 +62,6 @@ async function showProgressPopup(type = 'comment') {
   const otherStats = [];
   if (type !== 'comment') otherStats.push(`💬 ${commentCount}/${GOALS.comments}`);
   if (type !== 'post') otherStats.push(`✍️ ${postCount}/${GOALS.posts}`);
-  if (type !== 'repost') otherStats.push(`🔁 ${repostCount}/${GOALS.reposts}`);
   
   let streakHTML = '';
   if (streak > 0) {
@@ -125,7 +115,7 @@ async function incrementCommentCount() {
     totalAllTime: (data.totalAllTime || 0) + 1
   });
   
-  if (commentCount === GOALS.comments && postCount >= GOALS.posts && repostCount >= GOALS.reposts) {
+  if (commentCount === GOALS.comments && postCount >= GOALS.posts) {
     showGoalReachedNotification();
   }
   
@@ -137,23 +127,11 @@ async function incrementPostCount() {
   console.log('[X Tracker] ✍️ Post #' + postCount);
   await chrome.storage.local.set({ postCount });
   
-  if (commentCount >= GOALS.comments && postCount === GOALS.posts && repostCount >= GOALS.reposts) {
+  if (commentCount >= GOALS.comments && postCount === GOALS.posts) {
     showGoalReachedNotification();
   }
   
   showProgressPopup('post');
-}
-
-async function incrementRepostCount() {
-  repostCount++;
-  console.log('[X Tracker] 🔁 Repost #' + repostCount);
-  await chrome.storage.local.set({ repostCount });
-  
-  if (commentCount >= GOALS.comments && postCount >= GOALS.posts && repostCount === GOALS.reposts) {
-    showGoalReachedNotification();
-  }
-  
-  showProgressPopup('repost');
 }
 
 async function showGoalReachedNotification() {
@@ -219,11 +197,6 @@ window.addEventListener('xTrackerComment', () => {
 window.addEventListener('xTrackerPost', () => {
   console.log('[X Tracker] Event: Post');
   incrementPostCount();
-});
-
-window.addEventListener('xTrackerRepost', () => {
-  console.log('[X Tracker] Event: Repost');
-  incrementRepostCount();
 });
 
 console.log('[X Tracker] Initializing...');

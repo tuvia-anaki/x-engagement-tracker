@@ -18,7 +18,6 @@
       // Check for CreateTweet
       if (url.includes('CreateTweet') && options.body) {
         console.log('[X Tracker INJECT] 🎯 CreateTweet found!');
-        console.log('[X Tracker INJECT] Body:', options.body);
         
         try {
           const bodyData = JSON.parse(options.body);
@@ -42,12 +41,6 @@
           console.error('[X Tracker INJECT] Parse error:', e);
         }
       }
-      
-      // Check for CreateRetweet
-      if (url.includes('CreateRetweet')) {
-        console.log('[X Tracker INJECT] ✅ REPOST detected! Dispatching event...');
-        window.dispatchEvent(new CustomEvent('xTrackerRepost'));
-      }
     }
     
     return originalFetch.apply(this, args);
@@ -59,14 +52,12 @@
   
   XMLHttpRequest.prototype.open = function(method, url, ...rest) {
     this._url = url;
-    console.log('[X Tracker INJECT] XHR Open:', url);
     return originalXHROpen.call(this, method, url, ...rest);
   };
   
   XMLHttpRequest.prototype.send = function(body) {
     if (this._url && this._url.includes('CreateTweet')) {
       console.log('[X Tracker INJECT] 🎯 CreateTweet (XHR) found!');
-      console.log('[X Tracker INJECT] XHR Body:', body);
       
       try {
         const bodyData = JSON.parse(body);
