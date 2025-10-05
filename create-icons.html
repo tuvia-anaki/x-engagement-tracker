@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Icons for X Comment Tracker</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #1DA1F2;
+    }
+    .icon-container {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .icon-box {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    canvas {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    button {
+      background: #1DA1F2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0d8bd9;
+    }
+    .instructions {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .instructions ol {
+      margin-left: 20px;
+    }
+    .instructions li {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Generate Icons for X Comment Tracker</h1>
+  
+  <p>Click the download buttons below to save each icon. You'll need all three sizes for the Chrome extension.</p>
+  
+  <div class="icon-container">
+    <div class="icon-box">
+      <h3>16x16</h3>
+      <canvas id="icon16" width="16" height="16"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon16', 'icon16.png')">Download icon16.png</button>
+    </div>
+    
+    <div class="icon-box">
+      <h3>48x48</h3>
+      <canvas id="icon48" width="48" height="48"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon48', 'icon48.png')">Download icon48.png</button>
+    </div>
+    
+    <div class="icon-box">
+      <h3>128x128</h3>
+      <canvas id="icon128" width="128" height="128"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon128', 'icon128.png')">Download icon128.png</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h2>📝 Instructions:</h2>
+    <ol>
+      <li>Click each "Download" button above to save the three icon files</li>
+      <li>Save all three files in the same folder as your extension files (where manifest.json is located)</li>
+      <li>Make sure the files are named exactly: <code>icon16.png</code>, <code>icon48.png</code>, <code>icon128.png</code></li>
+      <li>Load or reload your extension in Chrome</li>
+    </ol>
+    <p><strong>Alternative:</strong> If you want custom icons, you can create your own or use an online icon generator, just make sure they're the correct sizes (16x16, 48x48, 128x128 pixels) and named correctly.</p>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#1DA1F2');
+      gradient.addColorStop(1, '#0d8bd9');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Draw chat bubble icon
+      ctx.fillStyle = 'white';
+      
+      // Scale based on size
+      const scale = size / 16;
+      
+      // Speech bubble
+      ctx.beginPath();
+      const bubbleSize = 10 * scale;
+      const bubbleX = (size - bubbleSize) / 2;
+      const bubbleY = (size - bubbleSize) / 2 - scale;
+      const radius = 2 * scale;
+      
+      // Rounded rectangle for bubble
+      ctx.moveTo(bubbleX + radius, bubbleY);
+      ctx.lineTo(bubbleX + bubbleSize - radius, bubbleY);
+      ctx.arcTo(bubbleX + bubbleSize, bubbleY, bubbleX + bubbleSize, bubbleY + radius, radius);
+      ctx.lineTo(bubbleX + bubbleSize, bubbleY + bubbleSize - radius);
+      ctx.arcTo(bubbleX + bubbleSize, bubbleY + bubbleSize, bubbleX + bubbleSize - radius, bubbleY + bubbleSize, radius);
+      ctx.lineTo(bubbleX + radius, bubbleY + bubbleSize);
+      ctx.arcTo(bubbleX, bubbleY + bubbleSize, bubbleX, bubbleY + bubbleSize - radius, radius);
+      ctx.lineTo(bubbleX, bubbleY + radius);
+      ctx.arcTo(bubbleX, bubbleY, bubbleX + radius, bubbleY, radius);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Small triangle tail
+      ctx.beginPath();
+      ctx.moveTo(bubbleX + 2 * scale, bubbleY + bubbleSize);
+      ctx.lineTo(bubbleX + 4 * scale, bubbleY + bubbleSize);
+      ctx.lineTo(bubbleX + 2 * scale, bubbleY + bubbleSize + 2 * scale);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Three dots inside bubble
+      const dotRadius = 0.8 * scale;
+      const dotY = bubbleY + bubbleSize / 2;
+      const spacing = 2.5 * scale;
+      const centerX = bubbleX + bubbleSize / 2;
+      
+      ctx.fillStyle = '#1DA1F2';
+      
+      // Left dot
+      ctx.beginPath();
+      ctx.arc(centerX - spacing, dotY, dotRadius, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Middle dot
+      ctx.beginPath();
+      ctx.arc(centerX, dotY, dotRadius, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Right dot
+      ctx.beginPath();
+      ctx.arc(centerX + spacing, dotY, dotRadius, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // Draw all icons on page load
+    window.onload = function() {
+      drawIcon('icon16', 16);
+      drawIcon('icon48', 48);
+      drawIcon('icon128', 128);
+    };
+  </script>
+</body>
+</html>
